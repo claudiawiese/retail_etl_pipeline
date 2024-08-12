@@ -7,7 +7,8 @@ from base_etl import BaseETL
 
 class SQLiteExtractor(BaseETL):
     def connect_to_db(self):
-        self.conn = sqlite3.connect(self.config['DB_FILE'])
+        if self.conn is None:
+            self.conn = sqlite3.connect(self.config['DB_FILE'])
         self.cursor = self.conn.cursor()
         try:
             self.cursor.execute('CREATE UNIQUE INDEX IF NOT EXISTS idx_transaction_id ON transactions (id)')
@@ -17,8 +18,10 @@ class SQLiteExtractor(BaseETL):
             print(f"An error occurred: {e}")
 
     def extract_date_from_filename(self, filename):
+        print(filename)
         base_name = os.path.basename(filename)
-        date_str = base_name.replace('.csv', '').split('_')[1:4]
+        date_str = base_name.replace('.csv', '').split('_')[-3:]
+        print(date_str)
         return datetime.strptime('_'.join(date_str), '%d_%m_%Y').date()
 
     def open_csv(self, csv_file):
