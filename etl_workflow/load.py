@@ -1,4 +1,5 @@
 import sqlite3
+import pdb
 from base_etl import BaseETL
 
 class SQLiteLoader(BaseETL):
@@ -9,6 +10,7 @@ class SQLiteLoader(BaseETL):
         ''', rows)
 
     def insert_update(self, rows):
+        print(rows)
         self.cursor.executemany('''
             INSERT OR REPLACE INTO transactions (id, category, name, quantity, amount_excl_tax, amount_inc_tax, transaction_date)
             VALUES (?, ?, ?, ?, ?, ?, ?)

@@ -10,16 +10,18 @@ from extract import SQLiteExtractor
 import os
 
 class TestSQLiteExtractor(unittest.TestCase):
+   
     def setUp(self):
-        # Set up a temporary in-memory database
+      
         self.config = {
-            'DB_FILE': 'tests/test_database',
+            'DB_FILE': 'tests/test_database.db',
             'CSV_FILE': os.path.abspath('tests/test_data_15_01_2022.csv')
         }
-       
+        
         self.extractor = SQLiteExtractor(self.config)
         self.extractor.connect_to_db()
-
+        
+       
     def tearDown(self):
         # Close the database connection
         self.extractor.conn.rollback()

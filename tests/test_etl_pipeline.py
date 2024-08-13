@@ -8,7 +8,9 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../etl_
 from etl_pipeline import ETLPipeline
 
 class TestETLPipeline(unittest.TestCase):
+   
     def setUp(self):
+
         self.config = {
             'DB_FILE': 'tests/test_database.db',
             'CSV_FILE': os.path.abspath('tests/test_data_15_01_2022.csv'),
@@ -17,6 +19,7 @@ class TestETLPipeline(unittest.TestCase):
         }
         self.etl_pipeline = ETLPipeline(self.config)
         self.etl_pipeline.connect_to_db()
+        
 
     def tearDown(self):
         self.etl_pipeline.conn.rollback()
@@ -24,9 +27,12 @@ class TestETLPipeline(unittest.TestCase):
 
     def test_run(self):
         self.etl_pipeline.run()
+        
         self.etl_pipeline = ETLPipeline(self.config)
         self.etl_pipeline.connect_to_db()
+
         self.etl_pipeline.cursor.execute('SELECT * FROM transactions')
+    
         rows = self.etl_pipeline.cursor.fetchall()
         self.assertEqual(len(rows), 735)
 
