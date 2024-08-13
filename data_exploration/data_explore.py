@@ -1,5 +1,6 @@
 import sqlite3
 import os
+from tabulate import tabulate
 
 db_path = 'db/retail.db'
 if not os.path.exists(db_path):
@@ -19,38 +20,48 @@ question1 = cursor.execute('''
             WHERE transaction_date = '2022-01-14'
         ''').fetchone()
 
-print(f'The total number of transactions on 14/01/2022 is {question1}')
+print(f'The total number of transactions on 14/01/2022 is {question1[1]}.\n')
 
 print("-------------------------------------------------\n")  
 
-print("Question 2: What is the total amount, including tax, of all SELL transactions ?")
+print("Question 2: What is the total amount, including tax, of all SELL transactions ?\n")
+print("Assuming that amount_inc_tax is not the unit price but total price") 
 question2 = cursor.execute('''
             SELECT sum(amount_inc_tax)
             FROM transactions 
             WHERE category = 'SELL'
         ''').fetchone()
 
-print(f'the total amount, including tax, of all SELL transactions is {question2}')
+print(f'The total amount, including tax, of all SELL transactions is {round(question2[0],2)}\n')
+
+print("Assuming that amount_inc_tax is unit price")
+question2 = cursor.execute('''
+            SELECT sum(quantity * amount_inc_tax)
+            FROM transactions 
+            WHERE category = 'SELL'
+        ''').fetchone()
+
+print(f'The total amount, including tax, of all SELL transactions is {round(question2[0],2)}\n')
 
 
 print("-------------------------------------------------\n")  
 
 print("Question 3: Consider the product Amazon Echo Dot:")
-print("What is the balance (SELL - BUY) by date?")
-print("What is the cumulated balance (SELL - BUY) by date?")
+print("What is the balance (SELL - BUY) by date? (Assuming amount_inc_tax is unit price)")
+
+
 question3_1 = cursor.execute('''
-            SELECT sum(amount_inc_tax)
+            SELECT transaction_date,
+                ROUND(
+                    sum(case when category = 'BUY' then quantity * amount_inc_tax else 0 end) - 
+                    sum(case when category = 'SELL' then quantity * amount_inc_tax else 0 end) 
+                ) as net_amount
             FROM transactions 
-            WHERE category = 'SELL'
-        ''').fetchone()
-    
-question3_2 = cursor.execute('''
-            SELECT sum(amount_inc_tax)
-            FROM transactions 
-            WHERE category = 'SELL'
+            GROUP BY transaction_date
         ''')
 
-print(f'The balance (SELL - BUY) by date is {question3_1}')
-print(f'The cumulated balance (SELL - BUY) by date is {question3_2}')
+rows = question3_1.fetchall()
 
+headers = ["Transaction Date", "Net Amount"]
 
+print(tabulate(rows, headers=headers, tablefmt="pretty"))
