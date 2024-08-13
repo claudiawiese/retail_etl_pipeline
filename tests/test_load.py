@@ -1,6 +1,5 @@
 import unittest
 import sqlite3
-import shutil
 import sys
 import os
 
@@ -12,14 +11,8 @@ from load import SQLiteLoader
 class TestSQLiteLoader(unittest.TestCase):
 
     def setUp(self):
-        self.original_db = 'tests/test_database.db'
-        self.pristine_db = 'tests/pristine_test_database.db'
-
-        # Ensure that the original database is replaced with the pristine one
-        if os.path.exists(self.original_db):
-            os.remove(self.original_db)  # Remove the existing test database
-        shutil.copyfile(self.pristine_db, self.original_db)  # Restore from pristine copy
-        
+        self.db_path = 'tests/test_database.db'
+        self.create_db()
         self.config = {
             'DB_FILE': 'tests/test_database.db',
             'CSV_FILE': os.path.abspath('tests/test_data_15_01_2022.csv')
@@ -28,37 +21,78 @@ class TestSQLiteLoader(unittest.TestCase):
         self.conn = sqlite3.connect("tests/test_database.db")
         self.cursor = self.conn.cursor()
 
-        self.conn.execute('BEGIN')
-
         self.loader = SQLiteLoader(self.config)
         self.loader.conn = self.conn
         self.loader.cursor = self.cursor
 
-        self.rows = [
-                ('12bb9b25-2d10-4459-833b-742f5f590dcaccc','SELL','Addidas Running Shoes',5,399.95,479.94,'2022-01-15'),
-                ('d0d36ed0-3795-4256-a405-8c91176c3c39','BUY','Fitbit Charge 5',5,449.95,539.94, '2022-01-16'),
-                ('05e8b96f-0a96-4676-9a7b-810e9ae09c96','SELL','Salomon Jacket',5,799.95,959.94, '2022-01-16'),
+        self.rows_initial = [
+                ('1a-a','BUY','Addidas Running Shoes',5,399.95,479.94,'2022-01-15'),
+                ('2b-b','BUY','Fitbit Charge 5',5,449.95,539.94, '2022-01-15'),
+                ('3c-c','BUY','Salomon Jacket',5,799.95,959.94, '2022-01-15'),
             ]
-    
-    def tearDown(self):
-        # Close the database connection     
-        self.loader.conn.rollback()
-        self.loader.conn.close()
 
-    def test_insert_ignore_duplicates(self):
-        self.loader.insert_ignore_duplicates(self.rows)
+        self.rows_update = [
+                ('1a-a','SELL','Addidas Running Shoes',5,399.95,479.94,'2022-01-16'),
+                ('2b-b','SELL','Fitbit Charge 5',5,449.95,539.94, '2022-01-16'),
+                ('4d-d','SELL','Salomon Jacket',5,799.95,959.94, '2022-01-16'),
+            ]
+
+    def create_db(self):
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute("DROP TABLE IF EXISTS transactions")
+        # Create the database schema with the specified columns
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS transactions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                transaction_date TEXT,
+                category TEXT,
+                name TEXT,
+                quantity INTEGER,
+                amount_excl_tax REAL,
+                amount_inc_tax REAL
+            )
+        ''')
+
+        # Commit changes and close the connection
+        conn.commit()
+        conn.close()
+    
+    def tearDown(self):   
+        self.loader.cursor.execute("DROP TABLE IF EXISTS transactions")
+        self.loader.conn.close()
+    
+    def test_insert(self):
+        self.loader.insert_ignore_duplicates(self.rows_initial)
         self.loader.cursor.execute('SELECT * FROM transactions')
         rows = self.loader.cursor.fetchall()
-        self.assertEqual(len(rows), 732)
+        self.assertEqual(len(rows), 3)
 
+    def test_insert_ignore_duplicates(self):
+        self.loader.insert_ignore_duplicates(self.rows_update)
+        self.loader.cursor.execute('SELECT * FROM transactions')
+        rows = self.loader.cursor.fetchall()
+        self.assertEqual(len(rows), 4)
+
+        first_record =  self.loader.cursor.execute("SELECT * FROM transactions WHERE id = '1a-a'")
+        self.assertEqual(first_record, self.rows_initial[0])
+
+        last_record =  self.loader.cursor.execute("SELECT * FROM transactions WHERE id = '4d-d'")
+        self.assertEqual(record, self.rows_update[2])
+    
     def test_insert_update(self):
-        self.loader.insert_update(self.rows)
+        self.loader.insert_update(self.rows_update)
         self.loader.conn.commit()
 
         self.loader.cursor.execute('SELECT * FROM transactions')
         rows = self.loader.cursor.fetchall()
-        self.assertEqual(len(rows), 731)
+        self.assertEqual(len(rows), 4)
 
+        first_record =  self.loader.cursor.execute("SELECT * FROM transactions WHERE id = '1a-a'")
+        self.assertEqual(first_record, self.rows_update[0])
 
+        last_record =  self.loader.cursor.execute("SELECT * FROM transactions WHERE id = '4d-d'")
+        self.assertEqual(record, self.rows_update[2])
+    
 if __name__ == '__main__':
     unittest.main()

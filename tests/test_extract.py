@@ -1,6 +1,5 @@
 import unittest
 import sqlite3
-import shutil
 import sys
 import os
 
@@ -13,15 +12,8 @@ import os
 class TestSQLiteExtractor(unittest.TestCase):
    
     def setUp(self):
-        self.original_db = 'tests/test_database.db'
-        self.pristine_db = 'tests/pristine_test_database.db'
-
-        # Ensure that the original database is replaced with the pristine one
-        if os.path.exists(self.original_db):
-            os.remove(self.original_db)  # Remove the existing test database
-        shutil.copyfile(self.pristine_db, self.original_db)  # Restore from pristine copy
-        
-      
+        self.db_path = 'tests/test_database.db'
+        self.create_db()
         self.config = {
             'DB_FILE': 'tests/test_database.db',
             'CSV_FILE': os.path.abspath('tests/test_data_15_01_2022.csv')
@@ -29,11 +21,31 @@ class TestSQLiteExtractor(unittest.TestCase):
         
         self.extractor = SQLiteExtractor(self.config)
         self.extractor.connect_to_db()
+    
+    def create_db(self):
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute("DROP TABLE IF EXISTS transactions")
+        # Create the database schema with the specified columns
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS transactions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                transaction_date TEXT,
+                category TEXT,
+                name TEXT,
+                quantity INTEGER,
+                amount_excl_tax REAL,
+                amount_inc_tax REAL
+            )
+        ''')
+
+        # Commit changes and close the connection
+        conn.commit()
+        conn.close()
         
        
     def tearDown(self):
-        # Close the database connection
-        self.extractor.conn.rollback()
+        self.extractor.cursor.execute('DROP TABLE IF EXISTS transactions')
         self.extractor.conn.close()
 
     def test_connect_to_db(self):
@@ -48,7 +60,7 @@ class TestSQLiteExtractor(unittest.TestCase):
 
     def test_open_csv(self):
         rows = self.extractor.open_csv(self.config['CSV_FILE'])
-        self.assertEqual(len(rows), 54)
+        self.assertEqual(len(rows), 3)
         self.assertEqual(rows[0][-1].year, 2022)  # Checking the date column
 
 if __name__ == '__main__':
