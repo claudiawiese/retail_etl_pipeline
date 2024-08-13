@@ -1,5 +1,6 @@
 import unittest
 import sqlite3
+import pdb
 import sys
 import os
 
@@ -28,23 +29,22 @@ class TestSQLiteLoader(unittest.TestCase):
         self.rows_initial = [
                 ('1a-a','BUY','Addidas Running Shoes',5,399.95,479.94,'2022-01-15'),
                 ('2b-b','BUY','Fitbit Charge 5',5,449.95,539.94, '2022-01-15'),
-                ('3c-c','BUY','Salomon Jacket',5,799.95,959.94, '2022-01-15'),
+                ('3c-c','BUY','Salomon Jacket',5,799.95,959.94, '2022-01-15')
             ]
 
         self.rows_update = [
                 ('1a-a','SELL','Addidas Running Shoes',5,399.95,479.94,'2022-01-16'),
                 ('2b-b','SELL','Fitbit Charge 5',5,449.95,539.94, '2022-01-16'),
-                ('4d-d','SELL','Salomon Jacket',5,799.95,959.94, '2022-01-16'),
+                ('4d-d','SELL','Salomon Jacket',5,799.95,959.94, '2022-01-16')
             ]
 
     def create_db(self):
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
-        cursor.execute("DROP TABLE IF EXISTS transactions")
         # Create the database schema with the specified columns
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS transactions (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id TEXT PRIMARY KEY,
                 transaction_date TEXT,
                 category TEXT,
                 name TEXT,
@@ -58,41 +58,44 @@ class TestSQLiteLoader(unittest.TestCase):
         conn.commit()
         conn.close()
     
-    def tearDown(self):   
-        self.loader.cursor.execute("DROP TABLE IF EXISTS transactions")
+    def tearDown(self):  
+        self.loader.cursor.execute('DROP TABLE IF EXISTS transactions') 
         self.loader.conn.close()
     
     def test_insert(self):
         self.loader.insert_ignore_duplicates(self.rows_initial)
         self.loader.cursor.execute('SELECT * FROM transactions')
         rows = self.loader.cursor.fetchall()
-        self.assertEqual(len(rows), 3)
-
+        self.assertEqual(len(rows), len(self.rows_initial))
+    
     def test_insert_ignore_duplicates(self):
+        self.loader.insert_ignore_duplicates(self.rows_initial)
         self.loader.insert_ignore_duplicates(self.rows_update)
+
         self.loader.cursor.execute('SELECT * FROM transactions')
         rows = self.loader.cursor.fetchall()
+    
         self.assertEqual(len(rows), 4)
 
-        first_record =  self.loader.cursor.execute("SELECT * FROM transactions WHERE id = '1a-a'")
-        self.assertEqual(first_record, self.rows_initial[0])
+        first_record =  self.loader.cursor.execute("SELECT * FROM transactions WHERE id = '1a-a'").fetchone()
+        self.assertEqual(first_record, ('1a-a','2022-01-15','BUY','Addidas Running Shoes',5,399.95,479.94))
 
-        last_record =  self.loader.cursor.execute("SELECT * FROM transactions WHERE id = '4d-d'")
-        self.assertEqual(record, self.rows_update[2])
+        last_record =  self.loader.cursor.execute("SELECT * FROM transactions WHERE id = '4d-d'").fetchone()
+        self.assertEqual(last_record,('4d-d','2022-01-16','SELL','Salomon Jacket',5,799.95,959.94))
     
     def test_insert_update(self):
+        self.loader.insert_update(self.rows_initial)
         self.loader.insert_update(self.rows_update)
-        self.loader.conn.commit()
 
         self.loader.cursor.execute('SELECT * FROM transactions')
         rows = self.loader.cursor.fetchall()
         self.assertEqual(len(rows), 4)
 
-        first_record =  self.loader.cursor.execute("SELECT * FROM transactions WHERE id = '1a-a'")
-        self.assertEqual(first_record, self.rows_update[0])
+        first_record =  self.loader.cursor.execute("SELECT * FROM transactions WHERE id = '1a-a'").fetchone()
+        self.assertEqual(first_record,('1a-a','2022-01-16','SELL','Addidas Running Shoes',5,399.95,479.94))
 
-        last_record =  self.loader.cursor.execute("SELECT * FROM transactions WHERE id = '4d-d'")
-        self.assertEqual(record, self.rows_update[2])
-    
+        last_record =  self.loader.cursor.execute("SELECT * FROM transactions WHERE id = '4d-d'").fetchone()
+        self.assertEqual(last_record,('4d-d','2022-01-16','SELL','Salomon Jacket',5,799.95,959.94))
+
 if __name__ == '__main__':
     unittest.main()

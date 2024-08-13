@@ -30,7 +30,7 @@ class TestETLPipeline(unittest.TestCase):
         # Create the database schema with the specified columns
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS transactions (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id TEXT PRIMARY KEY,
                 transaction_date TEXT,
                 category TEXT,
                 name TEXT,
