@@ -18,10 +18,8 @@ class SQLiteExtractor(BaseETL):
             print(f"An error occurred: {e}")
 
     def extract_date_from_filename(self, filename):
-        print(filename)
         base_name = os.path.basename(filename)
         date_str = base_name.replace('.csv', '').split('_')[-3:]
-        print(date_str)
         return datetime.strptime('_'.join(date_str), '%d_%m_%Y').date()
 
     def open_csv(self, csv_file):
