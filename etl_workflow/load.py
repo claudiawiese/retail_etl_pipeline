@@ -1,18 +1,21 @@
 import sqlite3
 from base_etl import BaseETL
+from transform import transform_rows
 
 class SQLiteLoader(BaseETL):
-    def insert_ignore_duplicates(self, rows):
+    def insert_ignore_duplicates(self,rows):
+        transformed_rows = transform_rows(rows) 
         self.cursor.executemany('''
             INSERT OR IGNORE INTO transactions (id, category, name, quantity, amount_excl_tax, amount_inc_tax, transaction_date)
             VALUES (?, ?, ?, ?, ?, ?, ?)
-        ''', rows)
+        ''', transformed_rows)
 
     def insert_update(self, rows):
+        transformed_rows = transform_rows(rows) 
         self.cursor.executemany('''
             INSERT OR REPLACE INTO transactions (id, category, name, quantity, amount_excl_tax, amount_inc_tax, transaction_date)
             VALUES (?, ?, ?, ?, ?, ?, ?)
-        ''', rows)
+        ''', transformed_rows)
 
     def load(self):
         try:

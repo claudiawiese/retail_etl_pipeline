@@ -1,4 +1,5 @@
 import unittest
+import sqlite3
 import sys
 import os
 
@@ -11,7 +12,7 @@ class TestETLPipeline(unittest.TestCase):
    
     def setUp(self):
         self.db_path = 'tests/test_database.db'
-        self.create_db
+        self.create_db()
 
         self.config = {
             'DB_FILE': 'tests/test_database.db',

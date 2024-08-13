@@ -26,21 +26,12 @@ class TestSQLiteLoader(unittest.TestCase):
         self.loader.conn = self.conn
         self.loader.cursor = self.cursor
 
-        self.rows_initial = [
-                ('1a-a','BUY','Addidas Running Shoes',5,399.95,479.94,'2022-01-15'),
-                ('2b-b','BUY','Fitbit Charge 5',5,449.95,539.94, '2022-01-15'),
-                ('3c-c','BUY','Salomon Jacket',5,799.95,959.94, '2022-01-15')
-            ]
-
-        self.rows_update = [
-                ('1a-a','SELL','Addidas Running Shoes',5,399.95,479.94,'2022-01-16'),
-                ('2b-b','SELL','Fitbit Charge 5',5,449.95,539.94, '2022-01-16'),
-                ('4d-d','SELL','Salomon Jacket',5,799.95,959.94, '2022-01-16')
-            ]
+        self.seed_rows()
 
     def create_db(self):
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
+        cursor.execute("DROP TABLE IF EXISTS transactions")
         # Create the database schema with the specified columns
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS transactions (
@@ -58,6 +49,19 @@ class TestSQLiteLoader(unittest.TestCase):
         conn.commit()
         conn.close()
     
+    def seed_rows(self):
+        self.rows_initial = [
+                ('1a-a','BUY','Addidas Running Shoes',5,399.95,479.94,'2022-01-15'),
+                ('2b-b','BUY','Fitbit Charge 5',5,449.95,539.94, '2022-01-15'),
+                ('3c-c','BUY','Salomon Jacket',5,799.95,959.94, '2022-01-15')
+            ]
+
+        self.rows_update = [
+                ('1a-a','SELL','Addidas Running Shoes',5,399.95,479.94,'2022-01-16'),
+                ('2b-b','SELL','Fitbit Charge 5',5,449.95,539.94, '2022-01-16'),
+                ('4d-d','SELL','Salomon Jacket',5,799.95,959.94, '2022-01-16')
+            ]
+
     def tearDown(self):  
         self.loader.cursor.execute('DROP TABLE IF EXISTS transactions') 
         self.loader.conn.close()
