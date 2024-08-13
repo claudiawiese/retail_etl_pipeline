@@ -1,4 +1,5 @@
 import unittest
+import shutil
 import sys
 import os
 
@@ -10,6 +11,14 @@ from etl_pipeline import ETLPipeline
 class TestETLPipeline(unittest.TestCase):
    
     def setUp(self):
+        self.original_db = 'tests/test_database.db'
+        self.pristine_db = 'tests/pristine_test_database.db'
+
+        # Ensure that the original database is replaced with the pristine one
+        if os.path.exists(self.original_db):
+            os.remove(self.original_db)  # Remove the existing test database
+        shutil.copyfile(self.pristine_db, self.original_db)  # Restore from pristine copy
+        
 
         self.config = {
             'DB_FILE': 'tests/test_database.db',
