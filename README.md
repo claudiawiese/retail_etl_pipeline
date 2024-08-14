@@ -2,7 +2,7 @@
 This project aims to construct an ETL pipeline that extracts, transforms, and loads retail data from a CSV file into a database, along with basic data exploration.
 
 ### Environment Setup 
-First close respository 
+First clone respository 
 
     git clone https://github.com/yourusername/your-repository.git
     cd your-repository
@@ -39,6 +39,7 @@ Third install project dependecies
     │   ├── load.py
     │   └── transform.py
     └── tests/
+        ├── __init__.py
         ├── test_base_etl.py   
         ├── test_data_15_01_2015.py
         ├── test_database.db
