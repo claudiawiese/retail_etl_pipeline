@@ -1,5 +1,3 @@
-from datetime import datetime
-
 def transform_rows(rows):
     transformed_rows = []
     for row in rows:
@@ -16,6 +14,9 @@ def transform_rows(rows):
             amount_inc_tax = round(float(amount_inc_tax), 2)  # Convert to float and round to 2 decimal places
             transaction_date = transaction_date # Normalization done before when extracted from csv
 
+            #check if amount_inc_tax correct
+            check_20_percent_tax(amount_excl_tax, amount_inc_tax)
+
             # Add the transformed row to the list
             transformed_rows.append((id_, category, name, quantity, amount_excl_tax, amount_inc_tax, transaction_date))
         
@@ -24,3 +25,11 @@ def transform_rows(rows):
             continue  # Skip this row if any transformation fails
     
     return transformed_rows
+
+def check_20_percent_tax(amount_excl_tax, amount_inc_tax):
+    # Calculate the expected amount with 20% tax
+    expected_amount_inc_tax = round(amount_excl_tax * 1.2, 2)
+
+    # Check if the calculated amount with tax matches the provided amount_inc_tax
+    if expected_amount_inc_tax != amount_inc_tax:
+        raise ValueError(f"Incorrect tax amount: expected {expected_amount_inc_tax}, got {amount_inc_tax}")

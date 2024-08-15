@@ -1,6 +1,5 @@
 import os
 import csv
-import pdb
 from datetime import datetime
 import sqlite3
 from base_etl import BaseETL

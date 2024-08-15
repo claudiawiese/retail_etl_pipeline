@@ -28,7 +28,7 @@ class TestSQLiteLoader(CommonTestUtilities):
             ]
 
         self.rows_update = [
-                ('1a-a','SELL','Nike Running Shoes',4,350.95,450.94,'2022-01-16'),
+                ('1a-a','SELL','Nike Running Shoes',4,350.95,421.14,'2022-01-16'),
                 ('2b-b','SELL','Fitbit Charge 5',5,449.95,539.94, '2022-01-16'),
                 ('4d-d','SELL','Salomon Jacket',5,799.95,959.94, '2022-01-16')
             ]
@@ -67,7 +67,7 @@ class TestSQLiteLoader(CommonTestUtilities):
         self.assertEqual(len(rows), 4)
 
         first_record =  self.loader.cursor.execute("SELECT * FROM transactions WHERE id = '1a-a'").fetchone()
-        self.assertEqual(first_record,('1a-a','2022-01-16','SELL','Nike Running Shoes',4,350.95,450.94))
+        self.assertEqual(first_record,('1a-a','2022-01-16','SELL','Nike Running Shoes',4,350.95,421.14))
 
         last_record =  self.loader.cursor.execute("SELECT * FROM transactions WHERE id = '4d-d'").fetchone()
         self.assertEqual(last_record,('4d-d','2022-01-16','SELL','Salomon Jacket',5,799.95,959.94))
