@@ -4,8 +4,6 @@ import sqlite3
 class CommonTestUtilities(unittest.TestCase):
     def setUpConfig(self):
         self.db_path = 'tests/test_database.db'
-        self.create_db()
-
         self.config = {
             'DB_FILE': self.db_path,
             'CSV_FILE': 'tests/test_data_15_01_2022.csv',

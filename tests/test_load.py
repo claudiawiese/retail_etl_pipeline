@@ -12,6 +12,7 @@ from load import SQLiteLoader
 class TestSQLiteLoader(CommonTestUtilities):
     def setUp(self):
         self.setUpConfig()
+        self.create_db()
         self.loader = SQLiteLoader(self.config)
         self.loader.connect_to_db() 
 

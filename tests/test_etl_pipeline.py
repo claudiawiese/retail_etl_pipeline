@@ -13,6 +13,7 @@ class TestETLPipeline(CommonTestUtilities):
    
     def setUp(self):
         self.setUpConfig()
+        self.create_db()
         self.etl_pipeline = ETLPipeline(self.config)
         self.etl_pipeline.connect_to_db()
     
