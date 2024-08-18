@@ -1,7 +1,10 @@
 import unittest
-from transform import transform_rows
+from transform import Transformer
 
 class TestTransformRows(unittest.TestCase):
+
+    def setUp(self):
+        self.transformer = Transformer()
 
     def test_transform_rows(self):
         # Sample input
@@ -18,8 +21,8 @@ class TestTransformRows(unittest.TestCase):
             ('3c-c','BUY','Salomon Jacket',5,799.95,959.94, '2022-01-15')
         ]
 
-        # Call the transform function
-        transformed_rows = transform_rows(input_rows)
+        # Call the transform method of Transformer class
+        transformed_rows = self.transformer.transform_rows(input_rows)
 
         # Assert the transformation matches the expected output
         self.assertEqual(transformed_rows, expected_rows)
@@ -41,10 +44,10 @@ class TestTransformRows(unittest.TestCase):
             ('3c-c','BUY','Salomon Jacket',5,799.95,959.94, '2022-01-15')
         ]
 
-        # Call the transform function
-        transformed_rows = transform_rows(input_rows)
+        # Call the transform method of Transformer class
+        transformed_rows = self.transformer.transform_rows(input_rows)
 
-        # Expecting empty result as both rows have invalid data
+        # Assert the transformation matches the expected output
         self.assertEqual(transformed_rows, expected_rows)
 
 if __name__ == '__main__':

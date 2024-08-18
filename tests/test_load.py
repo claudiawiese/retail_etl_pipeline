@@ -8,6 +8,7 @@ from common_test_utilities import CommonTestUtilities
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../etl_workflow')))
 
 from load import SQLiteLoader
+from transform import Transformer
 
 class TestSQLiteLoader(CommonTestUtilities):
     def setUp(self):
@@ -15,7 +16,7 @@ class TestSQLiteLoader(CommonTestUtilities):
         self.create_db()
         self.loader = SQLiteLoader(self.config)
         self.loader.connect_to_db() 
-
+        self.loader.transformer = Transformer() 
         self.seed_rows()
     
     def seed_rows(self):

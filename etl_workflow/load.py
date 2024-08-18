@@ -1,8 +1,12 @@
 import sqlite3
 from base_etl import BaseETL
-from transform import transform_rows
+from transform import Transformer
 
 class SQLiteLoader(BaseETL):
+    def __init__(self, config):
+        super().__init__(config)
+        self.transformer = Transformer()  # Instantiate Transformer class
+
     def connect_to_db(self):
         if self.conn is None:
             self.conn = sqlite3.connect(self.config['DB_FILE'])
@@ -15,14 +19,14 @@ class SQLiteLoader(BaseETL):
             print(f"An error occurred: {e}")
 
     def insert_ignore_duplicates(self,rows):
-        transformed_rows = transform_rows(rows) 
+        transformed_rows = self.transformer.transform_rows(rows) 
         self.cursor.executemany('''
             INSERT OR IGNORE INTO transactions (id, category, name, quantity, amount_excl_tax, amount_inc_tax, transaction_date)
             VALUES (?, ?, ?, ?, ?, ?, ?)
         ''', transformed_rows)
 
     def insert_update(self, rows):
-        transformed_rows = transform_rows(rows) 
+        transformed_rows = self.transformer.transform_rows(rows) 
         self.cursor.executemany('''
             INSERT OR REPLACE INTO transactions (id, category, name, quantity, amount_excl_tax, amount_inc_tax, transaction_date)
             VALUES (?, ?, ?, ?, ?, ?, ?)
