@@ -1,4 +1,4 @@
-### Retail ETL Pipeline and Data Exploration Project
+## Retail ETL Pipeline and Data Exploration Project
 This project aims to construct an ETL pipeline that extracts, transforms, and loads retail data from a CSV file into a database, along with basic data exploration.
 
 ### Environment Setup 
