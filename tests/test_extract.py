@@ -10,20 +10,10 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../etl_
 from extract import SQLiteExtractor
 
 class TestSQLiteExtractor(CommonTestUtilities):
-   
     def setUp(self):
         self.setUpConfig()
         self.extractor = SQLiteExtractor(self.config)
-        self.extractor.connect_to_db()    
        
-    def tearDown(self):
-        self.extractor.cursor.execute('DROP TABLE IF EXISTS transactions')
-        self.extractor.conn.close()
-
-    def test_connect_to_db(self):
-        self.assertIsInstance(self.extractor.conn, sqlite3.Connection)
-        self.assertIsInstance(self.extractor.cursor, sqlite3.Cursor)
-
     def test_extract_date_from_filename(self):
         date = self.extractor.extract_date_from_filename('test_data_15_01_2022.csv')
         self.assertEqual(date.year, 2022)

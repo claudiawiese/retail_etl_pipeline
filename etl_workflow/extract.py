@@ -5,17 +5,6 @@ import sqlite3
 from base_etl import BaseETL
 
 class SQLiteExtractor(BaseETL):
-    def connect_to_db(self):
-        if self.conn is None:
-            self.conn = sqlite3.connect(self.config['DB_FILE'])
-        self.cursor = self.conn.cursor()
-        try:
-            self.cursor.execute('CREATE UNIQUE INDEX IF NOT EXISTS idx_transaction_id ON transactions (id)')
-            self.conn.commit()
-            print('Success, unique constraint has been created')
-        except sqlite3.Error as e:
-            print(f"An error occurred: {e}")
-
     def extract_date_from_filename(self, filename):
         base_name = os.path.basename(filename)
         date_str = base_name.replace('.csv', '').split('_')[-3:]

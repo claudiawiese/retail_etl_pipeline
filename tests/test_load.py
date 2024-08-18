@@ -10,13 +10,10 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../etl_
 from load import SQLiteLoader
 
 class TestSQLiteLoader(CommonTestUtilities):
-
     def setUp(self):
         self.setUpConfig()
         self.loader = SQLiteLoader(self.config)
-
-        self.loader.conn = sqlite3.connect("tests/test_database.db")
-        self.loader.cursor = self.loader.conn.cursor()
+        self.loader.connect_to_db() 
 
         self.seed_rows()
     
@@ -36,6 +33,10 @@ class TestSQLiteLoader(CommonTestUtilities):
     def tearDown(self):  
         self.loader.cursor.execute('DROP TABLE IF EXISTS transactions') 
         self.loader.conn.close()
+    
+    def test_connect_to_db(self):
+        self.assertIsInstance(self.loader.conn, sqlite3.Connection)
+        self.assertIsInstance(self.loader.cursor, sqlite3.Cursor)
     
     def test_insert(self):
         self.loader.insert_ignore_duplicates(self.rows_initial)
