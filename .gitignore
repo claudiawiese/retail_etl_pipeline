@@ -1,2 +1,5 @@
 #Ignore pycache
 **/__pycache__/
+
+#Ignore test_database
+tests/test_database.db

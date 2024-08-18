@@ -92,7 +92,7 @@ Or test individual components:
 
     python -m unittest tests/test_base_etl.py
 
-Tests use a dedicated test database and CSV files.
+Tests use a dedicated test database and csv files.
 
 ### Troubleshooting
 ModuleNotFoundError: Ensure you are running scripts from the project root and your PYTHONPATH is correctly set.
