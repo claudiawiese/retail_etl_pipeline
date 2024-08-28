@@ -65,8 +65,8 @@ print("3.1 What is the balance (SELL - BUY) by date? (Assuming amount_inc_tax is
 question3_1 = cursor.execute('''
             SELECT transaction_date,
                 ROUND(
-                    sum(case when category = 'BUY' then quantity * amount_inc_tax else 0 end) - 
-                    sum(case when category = 'SELL' then quantity * amount_inc_tax else 0 end) 
+                    sum(case when category = 'SELL' then quantity * amount_inc_tax else 0 end) - 
+                    sum(case when category = 'BUY' then quantity * amount_inc_tax else 0 end) 
                 ) as net_amount
             FROM transactions 
             GROUP BY transaction_date
@@ -87,11 +87,11 @@ question3_2 = cursor.execute('''
             transaction_date,
             ROUND(
                 SUM(CASE 
-                    WHEN category = 'BUY' THEN quantity * amount_inc_tax 
+                    WHEN category = 'SELL' THEN quantity * amount_inc_tax 
                     ELSE 0 
                 END) - 
                 SUM(CASE 
-                    WHEN category = 'SELL' THEN quantity * amount_inc_tax 
+                    WHEN category = 'BUY' THEN quantity * amount_inc_tax 
                     ELSE 0 
                 END)
             ) AS net_amount
